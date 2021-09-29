@@ -43,7 +43,7 @@ def main():
                        layout,
                        return_keyboard_events=True,
                        no_titlebar=False,
-                       location=(0, 0))
+                       location=(0, 900))
 
 
     image_elem = window['-image-']
@@ -77,7 +77,8 @@ def main():
             # We create a new image where we have just the eyes so that we can pass it to the CNN model
             image_new = image_new[y_min - 20:y_max + 20, x_min - 10:x_max + 10]
             #cv2.imshow('eyes', frame)
-            cv2.imshow('just eyes', image_new)
+            output = cv2.resize(image_new, [120,40])
+            cv2.imshow('just eyes', output)
 
 
 
