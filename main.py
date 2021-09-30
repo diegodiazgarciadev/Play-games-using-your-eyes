@@ -2,10 +2,50 @@ import PySimpleGUI as sg
 from datetime import date
 import cv2
 import time
+import datetime
 from cvzone.FaceMeshModule import FaceMeshDetector
+import numpy as np
+from tensorflow.keras.models import load_model
+
+
+new_model = load_model('100epochs_6classes.h5')
+classes = {
+  0: 'blink_left',
+  1: 'blink_right',
+  2: 'eyes_centered',
+  3: 'eyes_closed',
+  4: 'eyes_left',
+  5: 'eyes_right',
+  6: 'eyes_up',
+}
+buffer_predictions = []
 
 
 
+def predict_(frame, frame_it):
+    global buffer_predictions
+    frame = cv2.resize(frame, (120, 40))
+    frame = frame / 255
+    frame = np.expand_dims(frame, axis=0)
+    frame = np.expand_dims(frame, axis=-1)
+    frame.shape
+    prediction = new_model.predict(frame)
+    #time.sleep(0.01)
+    key = np.argmax(prediction)
+    if (frame_it) < 10:
+        buffer_predictions.append(key)
+        print(buffer_predictions, frame_it)
+    else:
+        print(buffer_predictions, frame_it)
+        buffer_predictions.append(key)
+        buffer_predictions.pop(0)
+        print(buffer_predictions, frame_it)
+
+
+    if classes[key]!= "eyes_centered":
+        return classes[key]
+    else:
+        return ""
 
 def check_eyes(img, faces, eyes_on):
     #left eye landmarks
@@ -23,20 +63,17 @@ def check_eyes(img, faces, eyes_on):
         except Exception as err:
             print(err)
 
-def main():
-    #Connecting to the Webcam
-    camara = cv2.VideoCapture(0)
 
-
+def create_GUI():
 
     #PySimpleGUI theme
     sg.theme('lightBlue')
     #Defining elements of the Graphic interface
     button2 = sg.Button('Take Video pictures')
-    read_button = sg.ReadFormButton('Click to record Video', bind_return_key=True)
+    record_button = sg.ReadFormButton('Click to record Video', bind_return_key=True)
     layout = [
               [sg.Image(filename='', key='-image-')],
-              [sg.Button('Set Folder'),read_button, sg.Button('exit')],
+              [sg.Button('Set Folder'),record_button, sg.Button('exit')],
               ]
     #Creating Graphic interface
     window = sg.Window('Camera',
@@ -47,13 +84,24 @@ def main():
 
 
     image_elem = window['-image-']
+
+    return image_elem, record_button, window
+
+
+def main():
+    #Connecting to the Webcam
+    camara = cv2.VideoCapture(0)
+
+    image_elem, record_button, window = create_GUI()
+
     number = 0
+    frame_it = 0
     detector = FaceMeshDetector(maxFaces=1)
     detect_face = False
     pTime = 0
     eyes_on = False
     recording = False
-    ruta = ""
+    path = "C:/Users/yabo9/AI/Computer Vision/CNN"
     while camara.isOpened():
         #Obtenemos informacion de la interfaz grafica y video
         event, values = window.read(timeout=0)
@@ -64,21 +112,31 @@ def main():
         if detect_face:
             frame, faces = detector.findFaceMesh(frame)
             check_eyes(frame, faces, eyes_on)
-
-            # we get the min and max position of the eyes (left and right) on any frame so that we can have a
-            # windows of the eyes, even if we move
-            # 130 left eye landmark
-            x_min, y_min = faces[0][130]
-               #cv2.circle(frame, (x_min, y_min), 2, (255, 50, 0), cv2.FILLED)
-            # 359 right eye landmark
-            x_max, y_max = faces[0][359]
-                #cv2.circle(frame, (x_max, y_max), 2, (255, 50, 0), cv2.FILLED)
+            try:
+                # we get the min and max position of the eyes (left and right) on any frame so that we can have a
+                # windows of the eyes, even if we move
+                # 130 left eye landmark
+                x_min, y_min = faces[0][130]
+                   #cv2.circle(frame, (x_min, y_min), 2, (255, 50, 0), cv2.FILLED)
+                # 359 right eye landmark
+                x_max, y_max = faces[0][359]
+                    #cv2.circle(frame, (x_max, y_max), 2, (255, 50, 0), cv2.FILLED)
+            except IndexError as err:
+                print(err)
 
             # We create a new image where we have just the eyes so that we can pass it to the CNN model
             image_new = image_new[y_min - 20:y_max + 20, x_min - 10:x_max + 10]
             #cv2.imshow('eyes', frame)
-            output = cv2.resize(image_new, [120,40])
-            cv2.imshow('just eyes', output)
+            try:
+                output = cv2.resize(image_new, [120,40])
+                gray = cv2.cvtColor(output, cv2.COLOR_BGR2GRAY)
+                print(predict_(gray, frame_it))
+                frame_it = frame_it + 1
+            except Exception as err:
+                print(err)
+
+            cv2.imshow('just eyes', gray)
+            #cv2.imshow('just eyes', output)
 
 
 
@@ -88,18 +146,18 @@ def main():
 
         #Taking pictures of video frames for saving them
         elif event == 'Set Folder':
-            ruta = sg.popup_get_folder(title='Save pic', message="Destiny folder")
-            print(ruta)
+            path = sg.popup_get_folder(title='Save pic', message="Destiny folder")
+            print(path)
             #gray = cv2.cvtColor(image_new, cv2.COLOR_BGR2GRAY)
-            #cv2.imwrite(ruta + "/" + str(date.today()) + str(number) + ".png", gray)
+            #cv2.imwrite(path + "/" + str(date.today()) + str(number) + ".png", gray)
         elif event == "Click to record Video":
             if recording:
                 recording = False
-                read_button.Update("Click to record Video", button_color=('white', 'blue'))
+                record_button.Update("Click to record Video", button_color=('white', 'blue'))
             else:
                 recording = True
                 print("recording")
-                read_button.Update("Recording Video", button_color=('white', 'red'))
+                record_button.Update("Recording Video", button_color=('white', 'red'))
 
         elif event == "f":
             detect_face = not detect_face
@@ -113,14 +171,14 @@ def main():
 
 
 
-        number = number + 1
+
 
         #  Frame Rate
         cTime = time.time()
         fps = 1 / (cTime - pTime)
         pTime = cTime
         cv2.putText(frame, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 2, (180, 30, 30), 2)
-        cv2.putText(frame, ruta, (15, 470), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
+        cv2.putText(frame, path, (15, 470), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
         #print(fps)
 
         # Sending video to GUI
@@ -129,9 +187,12 @@ def main():
 
         if recording:
             gray = cv2.cvtColor(image_new, cv2.COLOR_BGR2GRAY)
-            ruta_total = ruta + "/" + str(date.today()) + str(number) + ".png"
+            date = datetime.datetime.now().strftime("%Y_%m_%d_%I_%M_%S_%p")
+            ruta_total = path + "/" + date + "_"+ str(number) + ".png"
             print(ruta_total)
             cv2.imwrite(ruta_total, gray)
+            number = number + 1
+
         k = cv2.waitKey(1) & 0xFF
         if k == 27:
             break
@@ -143,6 +204,9 @@ def main():
             print("detect_face ", detect_face)
         if k == ord("e"):
             eyes_on = not eyes_on
+
+
+
 
 
 
