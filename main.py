@@ -80,9 +80,10 @@ def do_action(movement, sensibility):
              direct_key_move("w", 0.5)
         elif movement == "eyes_closed":
            # mouse.down_mousefff
-            direct_key_move("f", 0.1)
+            direct_key_move("s", 0.1)
         elif movement == "blink_left":
-             mouse.click_left_mouse()
+            # mouse.click_left_mouse()
+            direct_key("x", 0.2)
 
         elif movement == "blink_right":
             #change sensibility
@@ -102,6 +103,7 @@ def do_action(movement, sensibility):
     else:
         direct_key_released("a")
         direct_key_released("d")
+        direct_key_released("s")
 
 
 def predict_(frame):

@@ -27,10 +27,10 @@ def create_GUI():
 def check_events(event, window, recording, detect_face, game_frame, show_face_detection, record_button):
     # Exit event
     if event in ('Exit', None):
-        #cv2.destroyWindow('just eyes')
-        #cv2.destroyWindow('-image-')lk
+       # cv2.destroyWindow('just eyes')
+       # cv2.destroyWindow('-image-')
         pass
-    # Taking pictures of video frames for saving them
+    # Taking pictures of video frames for saving them4444446666664444l
     elif event == 'Set Folder':
         path = sg.popup_get_folder(title='Save pic', message="Destiny folder")
         print(path)
@@ -46,7 +46,9 @@ def check_events(event, window, recording, detect_face, game_frame, show_face_de
             record_button.Update("Recording Video", button_color=('white', 'red'))
 
     elif event == "l":
+        print("l ", detect_face)
         detect_face = not detect_face
+        print("l ", detect_face)
         if not detect_face:
             cv2.destroyWindow('just eyes')
 
