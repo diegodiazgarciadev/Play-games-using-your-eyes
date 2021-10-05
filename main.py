@@ -12,13 +12,15 @@ import src.window_GUI as win
 import src.mouse as mouse
 import src.haar_managment as haar
 import resources.keys as k
+import mouse as ms
 
-
+x = -25
+time_ = 0.2
 
 n = [12, 10, 8]
 i = 0
 buffer_predictions = []
-buffer_size = 8
+buffer_size = 5
 #new_model = load_model('model/50epochs_7classes.h5')
 #new_model = load_model('model/50epochs_7classes_standard_1.h5')
 #new_model = load_model('model/50epochs_10classes.h5')
@@ -26,11 +28,12 @@ buffer_size = 8
 #new_model = load_model('model/50epochs_7classes_normal.h5')
 
 #new_model = load_model('model/80epochs_11classes_2.h5')
-new_model = load_model('model/80epochs_11classes_6.h5')
+#new_model = load_model('model/80epochs_11classes_6.h5')
+new_model = load_model('model/80epochs_11classes_7.h5')
 #new_model = load_model('model/80epochs_11classes.h5')
 
 moving = False
-car_mode_on = True
+car_mode_on = False
 
 
 
@@ -109,21 +112,43 @@ def do_action(movement, sensibility):
             pass
         elif movement == "blink_right":
             print("blink_right")
+            direct_key2("NUMPADENTER", 0.08)
+            #direct_key2("SPACE", 0.01)
+            car_mode_on = not car_mode_on
+            print("car_mode : ", car_mode_on)
+            time.sleep(0.2)
+
             #time.sleep(0.1)
+
         elif movement == "head_left":
-            mouse.left_mouse(30)
+           #mouse.left_mouse(30)
+           if car_mode_on:
+               direct_key2("a", 0.2)
+           else:
+                ms.move(x,0, absolute=False, duration=time_)
         elif movement == "head_right":
-            mouse.right_mouse(30)
+            if car_mode_on:
+                direct_key2("d", 0.2)
+            else:
+                 ms.move(-x, 0, absolute=False, duration=time_)
+
         elif movement == "head_up":
-            mouse.up_mouse(15)
+            if car_mode_on:
+                direct_key2("x", 0.2)
+            else:
+                ms.move(0, x*2, absolute=False, duration=time_)
         elif movement == "head_down":
-            mouse.down_mouse(15)
+            if car_mode_on:
+                direct_key("s", 0.2)
+            else:
+                 ms.move(0, -x, absolute=False, duration=time_)
         print("movement", movement)
     else:
         direct_key_released("a")
         direct_key_released("d")
         direct_key_released("s")
         direct_key_released("f")
+        #ms.unhook_all()
 
 
 def predict_(frame):
@@ -145,8 +170,8 @@ def predict_(frame):
             buffer_predictions.append(key)
             buffer_predictions.pop(0)
            # print(buffer_predictions, frame_it)
-        print("key : ", key )
-        if key == 0 or key == 1 or key == 3:
+        #print("key : ", key )
+        if key == 0 or  key == 3:
             mode = statistics.mode(buffer_predictions)
             movement = cnf.classes[mode]
         else:
@@ -267,6 +292,7 @@ def main():
             print("detect_face ", detect_face)
         if k == ord("e"):
             draw_eyes = not draw_eyes
+
 
 
 main()

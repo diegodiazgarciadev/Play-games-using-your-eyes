@@ -6,4 +6,8 @@ classes = {
     4: 'eyes_left',
     5: 'eyes_right',
     6: 'eyes_up',
+    7: 'head_down',
+    8: 'head_left',
+    9: 'head_right',
+    10: 'head_up',
 }
