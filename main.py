@@ -4,6 +4,7 @@ from cvzone.FaceMeshModule import FaceMeshDetector
 from cvzone.PoseModule import PoseDetector
 from tensorflow.keras.models import load_model
 import numpy as np
+import statistics
 from PIL import ImageGrab
 import src.utils as ut
 import configuration.config as cnf
@@ -17,7 +18,17 @@ import resources.keys as k
 n = [12, 10, 8]
 i = 0
 buffer_predictions = []
-new_model = load_model('model/50epochs_7classes.h5')
+buffer_size = 8
+#new_model = load_model('model/50epochs_7classes.h5')
+#new_model = load_model('model/50epochs_7classes_standard_1.h5')
+#new_model = load_model('model/50epochs_10classes.h5')
+#new_model = load_model('model/50epochs_11classes_standard.h5')
+#new_model = load_model('model/50epochs_7classes_normal.h5')
+
+#new_model = load_model('model/80epochs_11classes_2.h5')
+new_model = load_model('model/80epochs_11classes_6.h5')
+#new_model = load_model('model/80epochs_11classes.h5')
+
 moving = False
 car_mode_on = True
 
@@ -26,10 +37,29 @@ car_mode_on = True
 
 keys = k.Keys()
 
+def increase_brightness(img, value=30):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
+
+    lim = 255 - value
+    v[v > lim] = 255
+    v[v <= lim] += value
+
+    final_hsv = cv2.merge((h, s, v))
+    img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+    return img
+
 def direct_key(key, sleep):
-    # keyboard (direct keys)
+    # keyboard (direct keys)f
     keys.directKey(key)
     #time.sleep(sleep)
+
+
+def direct_key2(key, sleep):
+    # keyboard (direct keys)f
+    keys.directKey(key)
+    time.sleep(sleep)
+    keys.directKey(key, keys.key_release)
 
 
 def direct_key_released(key):
@@ -41,10 +71,10 @@ def direct_key_move(key, sleep):
     moving = not moving
     if moving == True:
         keys.directKey(key)
-        time.sleep(0.4)
+        time.sleep(sleep)
     else:
         keys.directKey(key, keys.key_release)
-        time.sleep(0.4)
+        time.sleep(sleep)
 
 def virtual_key():
     # keyboard (virtual keys)
@@ -64,50 +94,41 @@ def do_action(movement, sensibility):
     global car_mode_on
     if movement != "eyes_centered":
         if movement == "eyes_left":
-            if car_mode_on:
-                direct_key("a", 1)
-            else:
-                mouse.left_mouse(15)
-
-
+             direct_key("a", 1)
         elif movement == "eyes_right":
-            if car_mode_on:
-                direct_key("d", 1)
-            else:
-                 mouse.right_mouse(15)
-
+             direct_key("d", 1)
         elif movement == "eyes_up":
-             direct_key_move("w", 0.5)
+             direct_key_move("w", 0.4)
         elif movement == "eyes_closed":
-           # mouse.down_mousefff
-            direct_key_move("s", 0.1)
+           # mouse.down_mouse
+            direct_key_move("f", 0.2)
         elif movement == "blink_left":
-            # mouse.click_left_mouse()
-            direct_key("x", 0.2)
-
+            print("blink_left")
+            mouse.click_left_mouse()
+            #direct_key("x", 0.2)
+            pass
         elif movement == "blink_right":
-            #change sensibility
-            car_mode_on =  not  car_mode_on
-            time.sleep(0.3)
-            print("Car mode: ", car_mode_on)
-            """
-            print ("len(n)-1 :", len(n)-1)
-            if i == len(n)-1:
-                i=0
-            else:
-                i = i + 1
-            time.sleep(0.3)
-            print("new Sensitivity to  :", n[i], i)
-            """
+            print("blink_right")
+            #time.sleep(0.1)
+        elif movement == "head_left":
+            mouse.left_mouse(30)
+        elif movement == "head_right":
+            mouse.right_mouse(30)
+        elif movement == "head_up":
+            mouse.up_mouse(15)
+        elif movement == "head_down":
+            mouse.down_mouse(15)
         print("movement", movement)
     else:
         direct_key_released("a")
         direct_key_released("d")
         direct_key_released("s")
+        direct_key_released("f")
 
 
 def predict_(frame):
     global buffer_predictions
+    global buffer_size
     frame = cv2.resize(frame, (120, 40))
     frame = frame / 255
     frame = np.expand_dims(frame, axis=0)
@@ -117,17 +138,19 @@ def predict_(frame):
     if prediction.max() > 0.90:
         # time.sleep(0.01)
         key = np.argmax(prediction)
-        if (len(buffer_predictions)) < 5:
+        if (len(buffer_predictions)) < buffer_size:
             buffer_predictions.append(key)
         else:
            # print(buffer_predictions, frame_it)
             buffer_predictions.append(key)
             buffer_predictions.pop(0)
            # print(buffer_predictions, frame_it)
-        from statistics import mode
-        mode = mode(buffer_predictions)
-
-        movement = cnf.classes[mode]
+        print("key : ", key )
+        if key == 0 or key == 1 or key == 3:
+            mode = statistics.mode(buffer_predictions)
+            movement = cnf.classes[mode]
+        else:
+            movement = cnf.classes[key]
         #print("movement", movement)
         global i
         do_action(movement, n[i])
@@ -179,6 +202,7 @@ def main():
                 image_eyes = ut.eyes_detection(frame_copy, faces)
                 ut.check_eyes(frame, faces, draw_eyes)
                 output = cv2.resize(image_eyes, [120, 40])
+                output = increase_brightness(output, 10)
                 gray = cv2.cvtColor(output, cv2.COLOR_BGR2GRAY)
                 predict_(gray)
                 #cv2.putText(frame, "Sensibitily: " + str(int(sensibility)), (220, 50), cv2.FONT_HERSHEY_PLAIN, 2, (180, 30, 30), 2)
@@ -205,7 +229,7 @@ def main():
 
 
         #   Checking events on the window
-        window, recording, detect_face, game_frame, show_face_detection = win.check_events(event, window, recording, detect_face, game_frame, show_face_detection, record_button)
+        window, path, recording, detect_face, game_frame, show_face_detection = win.check_events(event, window,path, recording, detect_face, game_frame, show_face_detection, record_button)
         #   Frame Rate
         pTime = ut.frame_rate(frame, path, pTime)
 
