@@ -17,7 +17,7 @@ def create_GUI():
                        layout,
                        return_keyboard_events=True,
                        no_titlebar=False,
-                       location=(0, 0))
+                       location=(10, 10))
 
     image_elem = window['-image-']
 

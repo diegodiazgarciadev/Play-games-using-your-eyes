@@ -1,12 +1,15 @@
 import time
 import cv2
 
-def frame_rate(frame, path, pTime):
+def window_display_info(frame, path, pTime, car_mode_on, detect_face):
     cTime = time.time()
     fps = 1 / (cTime - pTime)
     pTime = cTime
     cv2.putText(frame, str(int(fps)), (20, 50), cv2.FONT_HERSHEY_PLAIN, 2, (180, 30, 30), 2)
     cv2.putText(frame, path, (15, 470), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
+    if detect_face:
+        cv2.putText(frame, "Car Mode: " + str(car_mode_on), (500, 40), cv2.FONT_HERSHEY_PLAIN, 1, (180, 30, 30), 1)
+
     #print(fps)
     return pTime
 

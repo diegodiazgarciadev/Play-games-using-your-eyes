@@ -15,12 +15,12 @@ import resources.keys as k
 import mouse as ms
 
 x = -25
-time_ = 0.2
+time_ = 0.1
 
 n = [12, 10, 8]
 i = 0
 buffer_predictions = []
-buffer_size = 5
+buffer_size = 2
 #new_model = load_model('model/50epochs_7classes.h5')
 #new_model = load_model('model/50epochs_7classes_standard_1.h5')
 #new_model = load_model('model/50epochs_10classes.h5')
@@ -29,7 +29,10 @@ buffer_size = 5
 
 #new_model = load_model('model/80epochs_11classes_2.h5')
 #new_model = load_model('model/80epochs_11classes_6.h5')
-new_model = load_model('model/80epochs_11classes_7.h5')
+#new_model = load_model('model/80epochs_11classes_7.h5')
+#new_model = load_model('model/80epochs_11classes_8.h5')
+#new_model = load_model('model/80epochs_11classes_9.h5')
+new_model = load_model('model/80epochs_11classes_10.h5')
 #new_model = load_model('model/80epochs_11classes.h5')
 
 moving = False
@@ -115,6 +118,7 @@ def do_action(movement, sensibility):
             direct_key2("NUMPADENTER", 0.08)
             #direct_key2("SPACE", 0.01)
             car_mode_on = not car_mode_on
+            direct_key2("h", 0.08)
             print("car_mode : ", car_mode_on)
             time.sleep(0.2)
 
@@ -136,9 +140,10 @@ def do_action(movement, sensibility):
             if car_mode_on:
                 direct_key2("x", 0.2)
             else:
-                ms.move(0, x*2, absolute=False, duration=time_)
+                ms.move(0, x, absolute=False, duration=time_)
         elif movement == "head_down":
             if car_mode_on:
+                direct_key_released("w")
                 direct_key("s", 0.2)
             else:
                  ms.move(0, -x, absolute=False, duration=time_)
@@ -148,7 +153,8 @@ def do_action(movement, sensibility):
         direct_key_released("d")
         direct_key_released("s")
         direct_key_released("f")
-        #ms.unhook_all()
+        ms.unhook_all()
+
 
 
 def predict_(frame):
@@ -171,7 +177,7 @@ def predict_(frame):
             buffer_predictions.pop(0)
            # print(buffer_predictions, frame_it)
         #print("key : ", key )
-        if key == 0 or  key == 3:
+        if key == 0 or key == 3:
             mode = statistics.mode(buffer_predictions)
             movement = cnf.classes[mode]
         else:
@@ -181,7 +187,7 @@ def predict_(frame):
         do_action(movement, n[i])
 
 
-        return movement
+        return movement, frame
 
 def detect_pose(frame, detector_pose):
     frame = detector_pose.findPose(frame)
@@ -213,7 +219,7 @@ def main():
     path = "C:/Users/yabo9/AI/Computer Vision/CNN"
     game_frame = False
     show_face_detection = True
-
+    #cv2.namedWindow('just eyes')
     while camera.isOpened():
         # Getting info from GUI and video
         event, values = window.read(timeout=0)
@@ -234,6 +240,8 @@ def main():
                 frame_it = frame_it + 1
                 # cv2.imshow('just eyes light', image_eyes_light)
                 cv2.imshow('just eyes', gray)
+                cv2.moveWindow('just eyes', 540, 10)
+
                 # cv2.imshow('just eyes', output)
 
 
@@ -252,11 +260,10 @@ def main():
         except Exception as err:
             print(err)
 
-
         #   Checking events on the window
         window, path, recording, detect_face, game_frame, show_face_detection = win.check_events(event, window,path, recording, detect_face, game_frame, show_face_detection, record_button)
         #   Frame Rate
-        pTime = ut.frame_rate(frame, path, pTime)
+        pTime = ut.window_display_info(frame, path, pTime, car_mode_on, detect_face)
 
 
         # Sending video to GUI
@@ -266,7 +273,6 @@ def main():
 
         if recording:
             number_file = win.record(image_eyes, path, number_file)
-
 
         k = cv2.waitKey(1) & 0xFF
         if k == 27:
@@ -292,6 +298,16 @@ def main():
             print("detect_face ", detect_face)
         if k == ord("e"):
             draw_eyes = not draw_eyes
+
+        if k == ord("b"):
+            global x
+            global time_
+            if x == -150:
+                x = -25
+                time_ =0.2
+            else:
+                x = -150
+                time_ = 0.1
 
 
 
