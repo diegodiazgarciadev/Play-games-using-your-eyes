@@ -26,6 +26,7 @@ def create_GUI():
 
 def check_events(event, window, path,  recording, detect_face, game_frame, show_face_detection, record_button):
     # Exit event
+
     if event in ('Exit', None):
        # cv2.destroyWindow('just eyes')
        # cv2.destroyWindow('-image-')

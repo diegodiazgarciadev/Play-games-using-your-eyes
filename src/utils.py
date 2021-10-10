@@ -13,7 +13,7 @@ def window_display_info(frame, path, pTime, car_mode_on, detect_face):
     #print(fps)
     return pTime
 
-def check_eyes(img, faces, eyes_on):
+def draw_eyes(img, faces):
     # left eye landmarks
     leye = [130, 30, 29, 28, 27, 56, 190, 243, 112, 26, 22, 23, 24, 110, 25, 33, 246, 161, 160, 159, 158, 157, 173, 133,
             155, 154, 153, 145, 144, 163, 7, 33]
@@ -21,15 +21,13 @@ def check_eyes(img, faces, eyes_on):
     reye = [362, 398, 384, 385, 386, 387, 388, 466, 263, 249, 390, 373, 374, 380, 381, 382, 463, 414, 286, 258, 259,
             257, 260, 467, 359, 255, 339, 254, 253, 252, 256, 341]
 
-    if eyes_on:
-        # Drawing eyes on blue colour
-        try:
-            for landmark in leye:
-                cv2.circle(img, ((faces[0][landmark])[0], (faces[0][landmark])[1]), 2, (255, 50, 0), cv2.FILLED)
-            for landmark in reye:
-                cv2.circle(img, ((faces[0][landmark])[0], (faces[0][landmark])[1]), 2, (255, 50, 0), cv2.FILLED)
-        except Exception as err:
-            print(err)
+    try:
+        for landmark in leye:
+            cv2.circle(img, ((faces[0][landmark])[0], (faces[0][landmark])[1]), 2, (255, 50, 0), cv2.FILLED)
+        for landmark in reye:
+            cv2.circle(img, ((faces[0][landmark])[0], (faces[0][landmark])[1]), 2, (255, 50, 0), cv2.FILLED)
+    except Exception as err:
+        print(err)
 
 def eyes_detection(frame_copy, faces):
     try:
@@ -45,3 +43,15 @@ def eyes_detection(frame_copy, faces):
         return image_eyes
     except IndexError as err:
         print(err)
+
+def increase_brightness(img, value=30):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
+
+    lim = 255 - value
+    v[v > lim] = 255
+    v[v <= lim] += value
+
+    final_hsv = cv2.merge((h, s, v))
+    img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+    return img
