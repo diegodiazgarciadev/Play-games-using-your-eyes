@@ -1,8 +1,8 @@
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, MaxPool2D, Flatten, Dropout, LayerNormalization
+from tensorflow.keras.layers import Dense, Conv2D, MaxPool2D, Flatten
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import pandas as pd
-import tensorflow as tf
+from tensorflow.keras.optimizers import Adam
 
 
 
@@ -16,15 +16,16 @@ image_gen = ImageDataGenerator(
 image_shape = (40, 120, 1)
 model = Sequential()
 
-## FIRST SET OF LAYERS
 
-
+# First convalutional layer
 model.add(Conv2D(filters=16, kernel_size=(3, 3), input_shape=image_shape, activation='relu', ))
 model.add(MaxPool2D(pool_size=(2, 2)))
-model.add(tf.keras.layers.LayerNormalization(axis=1))
+
+# Second convalutional layer
 model.add(Conv2D(filters=32, kernel_size=(3, 3), activation='relu', ))
 model.add(MaxPool2D(pool_size=(2, 2)))
 
+# Third convalutional layer
 model.add(Conv2D(filters=32, kernel_size=(3, 3), activation='relu', ))
 model.add(MaxPool2D(pool_size=(2, 2)))
 
@@ -35,8 +36,6 @@ model.add(Dense(11, activation='softmax'))
 
 model.summary()
 
-
-from tensorflow.keras.optimizers import Adam
 
 opt = Adam(learning_rate=0.001)
 
@@ -66,21 +65,7 @@ results = model.fit(train_image_gen, epochs=50,
                     validation_steps=4)
 
 pd.DataFrame(results.history).plot(figsize=(8, 5))
-model.save('50epochs_7classes_normal.h5')
+model.save('80epochs_11classes_10_.h5.h5')
 
 
-"""
-from tensorflow.keras.utils import image_dataset_from_directory
-i = image_dataset_from_directory("./../data/train")
-
-[met for met in dir(i) if met[:1] != "_"]
-i.as_numpy_iterator()
-ii = _
-next(ii)
-o = _
-type(o)
-u= o[0][0]
-image_gen.fit(o[0])
-
-"""
 

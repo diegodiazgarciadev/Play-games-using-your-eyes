@@ -11,7 +11,7 @@ buffer_predictions = []  # Buffer where we store the last n (buffer_size)  predi
 def predict(frame):
     """
     Giving an eyes frame, this function will send it to the CNN and will get the prediction
-    :param frame: A frame with the eyes geture
+    :param frame: A frame with the eyes gesture
     :return: The class prediction if it is over the threshold
     """
     global buffer_predictions
@@ -29,7 +29,7 @@ def predict(frame):
         else:
             buffer_predictions.append(key)
             buffer_predictions.pop(0)
-            print(buffer_predictions)
+            #print(buffer_predictions)
 
         if key == 0 or key == 3:
             mode = statistics.mode(buffer_predictions)
@@ -39,7 +39,8 @@ def predict(frame):
 
         return movement
     else:
-        return f"Predcition under the permited {cfg.threshold} threshold accuracy"
+        #return f"Predcition under the permited {cfg.threshold} threshold accuracy"
+        return None
 
 def do_action(movement,car_mode_on, moving ):
     """
@@ -93,7 +94,8 @@ def do_action(movement,car_mode_on, moving ):
                 keyboard.direct_key("s")
             else:
                 ms.move(0, cfg.x_, absolute=False, duration=cfg.time_)
-        print("movement", movement)
+        if movement:
+            print("movement", movement)
     else:
         keyboard.direct_key_released("a")
         keyboard.direct_key_released("d")
