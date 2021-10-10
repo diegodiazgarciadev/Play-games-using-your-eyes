@@ -1,7 +1,29 @@
 import time
 import resources.keys as k
 
-keys = k.Keys()
+keys = k.Keys()             # Instance of the Keys class
+
+
+def direct_key(key):
+    keys.directKey(key)
+
+def direct_key_released(key):
+    keys.directKey(key, keys.key_release)
+
+def direct_key_sleep(key, sleep):
+    keys.directKey(key)
+    time.sleep(sleep)
+    keys.directKey(key, keys.key_release)
+
+def direct_key_move(key, sleep, moving):
+    moving = not moving
+    if moving == True:
+        keys.directKey(key)
+        time.sleep(sleep)
+    else:
+        keys.directKey(key, keys.key_release)
+        time.sleep(sleep)
+    return moving
 
 def mouse(x,y):
     for i in range(20):
