@@ -41,7 +41,7 @@ I didn't create this program for lazy people who could play games while they are
 
 # How does it work?
 
-Basically what I build, is a translator that has an eye image as an input and a action on the output. We could say it is something like that:  
+Basically what I built, is a translator that take an eye image as an input and a action on the output. We could say it is something like that:  
 
 
 ![image](https://user-images.githubusercontent.com/82879300/136744872-3f10c188-0586-46af-a25a-d154f288d252.png)
