@@ -27,6 +27,20 @@ https://user-images.githubusercontent.com/82879300/136693661-2440c955-4e21-4f65-
 
 Winking right to start CAR_MODE, then turning a bit the head or movien eyes (left,right) to control the car
 
+
+# Why I did this?
+
+### Academic motivation 
+I wanted to use my AI knowlege and use everything I learned in the last few months.
+
+### Challenge
+Start with an idea in your head , having 10 days to complete it, and do all the process until you achieve kind of a product anybody could use, has been a very good challenge for me, but I have to say I had fun on the way :)
+
+### Help
+I didn't create this program for lazy people who could play games while they are eating or laying down, I created this program for disabled people who are not able to use their hands to play games. I wanted to give them the feeling of freedom of driving a fast car or to go for a walk in a new city.
+
+
+
 # Controlls for GTA V
 
 ![image](https://user-images.githubusercontent.com/82879300/136694237-b9be4f52-b9d3-4690-a717-a89b6e6330ef.png)
