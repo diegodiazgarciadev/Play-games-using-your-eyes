@@ -8,7 +8,8 @@ understand, allowing people to play video games using just your eyes.
 AMAZING, don't you think?
 
 ### Hackshow
-This proyect has been selected as a finalist to be showed on the HackShow event of Ironhack
+This project has been selected as a finalist to be showed on the HackShow event of Ironhack.
+Update: This project has been the winner of the Ironhack Hackshow contest.
 
 # Video examples
 
