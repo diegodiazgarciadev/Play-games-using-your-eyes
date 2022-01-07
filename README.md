@@ -26,7 +26,7 @@ Using wink left to hit and then eyes close to get into the car
 
 https://user-images.githubusercontent.com/82879300/136693661-2440c955-4e21-4f65-93a8-3fb97456d6fb.mp4
 
-Winking right to start CAR_MODE, then turning a bit the head or movien eyes (left,right) to control the car
+Winking right to start CAR_MODE, then turning a bit the head or moving the eyes (left,right) to control the car.
 
 
 # Why I did this?
