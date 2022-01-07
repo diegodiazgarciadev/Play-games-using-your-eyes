@@ -3,7 +3,7 @@
 # Introduction
 
 Creation of a python program using CNN (convolutional Neural Network) and a simple WebCam, that translate eyes gestures to a code that the computer can
-understand, allowing people to play video games using just your eyes.
+understand, allowing people to play video games using just their eyes.
 
 AMAZING, don't you think?
 
